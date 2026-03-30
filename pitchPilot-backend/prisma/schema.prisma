@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id        Int          @id @default(autoincrement())
+  name      String
+  email     String       @unique
+  password  String
+  createdAt DateTime     @default(now())
+
+  simulations Simulation[]
+}
+
+model Scenario {
+  id                Int          @id @default(autoincrement())
+  title             String
+  description       String?      @db.Text
+  difficulty        String
+  customerProfile   String       @db.Text
+  propertyContext   String       @db.Text
+  objections        Json
+  successCriteria   Json
+  createdAt         DateTime     @default(now())
+
+  simulations       Simulation[]
+}
+
+model Simulation {
+  id          Int          @id @default(autoincrement())
+  userId      Int
+  scenarioId  Int
+  status      String       @default("ACTIVE")
+  startedAt   DateTime     @default(now())
+  endedAt     DateTime?
+  finalScore  Int?
+  summary     String?      @db.Text
+
+  user        User         @relation(fields: [userId], references: [id])
+  scenario    Scenario     @relation(fields: [scenarioId], references: [id])
+  messages    Message[]
+  evaluation  Evaluation?
+}
+
+model Message {
+  id            Int          @id @default(autoincrement())
+  simulationId  Int
+  role          String
+  content       String       @db.Text
+  createdAt     DateTime     @default(now())
+
+  simulation    Simulation   @relation(fields: [simulationId], references: [id])
+}
+
+model Evaluation {
+  id                   Int        @id @default(autoincrement())
+  simulationId         Int        @unique
+  scoreTotal           Int
+  scoreDiscovery       Int
+  scoreEmpathy         Int
+  scoreObjection       Int
+  scoreClosing         Int
+  strengths            Json
+  mistakes             Json
+  recommendations      Json
+  chartData            Json
+  summary              String     @db.Text
+
+  simulation           Simulation @relation(fields: [simulationId], references: [id])
+}
