@@ -17,6 +17,7 @@ export async function login(req, res) {
       id: user.id,
       name: user.name,
       email: user.email,
+      companyID: user.companyID,
     },
   });
 }
@@ -28,6 +29,7 @@ export async function me(req, res) {
       id: true,
       name: true,
       email: true,
+      companyID: true,
     },
   });
 

@@ -1,26 +1,36 @@
 import openai from "../openai.js";
 
-export async function generateClientReply({ scenario, messages }) {
+export async function generateClientReply({ scenario, company, messages }) {
   const instructions = `
 Eres un cliente potencial de una inmobiliaria en una simulación comercial.
 
-Perfil del cliente:
-${scenario.customerProfile}
+CONTEXTO DE EMPRESA
+Nombre: ${company.name}
+Descripción del negocio: ${company.businessDescription}
+Cliente objetivo: ${company.targetCustomer}
+Proceso comercial: ${company.salesProcess}
+Propuesta de valor: ${company.valueProposition}
+Objeciones habituales: ${JSON.stringify(company.commonObjections)}
+Competidores: ${JSON.stringify(company.competitors)}
+Guía de tono comercial: ${company.toneGuidelines}
+Objetivos comerciales: ${JSON.stringify(company.goals)}
 
-Contexto del inmueble:
-${scenario.propertyContext}
+ESCENARIO
+Título: ${scenario.title}
+Descripción: ${scenario.description || ""}
+Perfil del cliente: ${scenario.customerProfile}
+Contexto del inmueble: ${scenario.propertyContext}
+Objeciones posibles del escenario: ${JSON.stringify(scenario.objections)}
 
-Objeciones posibles:
-${JSON.stringify(scenario.objections)}
-
-Reglas:
+REGLAS
 - Habla como una persona real, no como un asistente.
 - Sé natural, breve y conversacional.
+- Introduce objeciones de forma creíble.
+- Reacciona según la calidad comercial del vendedor.
+- Si el vendedor lo hace bien, avanza.
+- Si lo hace mal, duda, enfría o bloquea.
 - No des feedback.
 - No rompas el personaje.
-- Introduce objeciones de forma realista.
-- Si el comercial lo hace bien, avanza.
-- Si lo hace mal, duda o enfría el interés.
 `;
 
   const input = messages.map((msg) => ({
@@ -38,24 +48,39 @@ Reglas:
   return response.output_text;
 }
 
-export async function evaluateConversation({ scenario, transcript }) {
+export async function evaluateConversation({ scenario, company, transcript }) {
   const response = await openai.responses.create({
     model: "gpt-5.4",
     instructions: `
-Eres un evaluador experto en ventas inmobiliarias.
+Eres un sales coach experto en ventas inmobiliarias.
 
-Analiza la conversación entre un comercial y un cliente potencial.
+Evalúa una conversación comercial teniendo en cuenta el contexto de empresa y el escenario.
 
-Criterios de éxito:
-${JSON.stringify(scenario.successCriteria)}
+CONTEXTO DE EMPRESA
+Nombre: ${company.name}
+Descripción del negocio: ${company.businessDescription}
+Cliente objetivo: ${company.targetCustomer}
+Proceso comercial: ${company.salesProcess}
+Propuesta de valor: ${company.valueProposition}
+Objeciones habituales: ${JSON.stringify(company.commonObjections)}
+Competidores: ${JSON.stringify(company.competitors)}
+Guía de tono comercial: ${company.toneGuidelines}
+Objetivos comerciales: ${JSON.stringify(company.goals)}
 
-Evalúa de 0 a 100:
+ESCENARIO
+Título: ${scenario.title}
+Descripción: ${scenario.description || ""}
+Perfil del cliente: ${scenario.customerProfile}
+Contexto del inmueble: ${scenario.propertyContext}
+Criterios de éxito: ${JSON.stringify(scenario.successCriteria)}
+
+Evalúa en clave de ventas reales:
 - discovery
 - empathy
 - objection_handling
 - closing
 
-Devuelve feedback muy concreto y útil para un dashboard visual.
+Devuelve feedback concreto, accionable y útil para un dashboard visual.
 `,
     input: `Transcripción:\n\n${transcript}`,
     text: {

@@ -4,6 +4,22 @@ import { generateClientReply, evaluateConversation } from "../services/ai.servic
 export async function startSimulation(req, res) {
   const { scenarioId } = req.body;
 
+  const user = await prisma.user.findUnique({
+    where: { id: req.user.id },
+    select: { id: true, companyId: true },
+  });
+
+  const scenario = await prisma.scenario.findFirst({
+    where: {
+      id: scenarioId,
+      companyId: user.companyId,
+    },
+  });
+
+  if (!scenario) {
+    return res.status(404).json({ message: "Escenario no encontrado para tu empresa" });
+  }
+
   const simulation = await prisma.simulation.create({
     data: {
       userId: req.user.id,
@@ -26,11 +42,20 @@ export async function getSimulation(req, res) {
         orderBy: { id: "asc" },
       },
       evaluation: true,
+      user: {
+        include: {
+          company: true,
+        },
+      },
     },
   });
 
   if (!simulation) {
     return res.status(404).json({ message: "Simulación no encontrada" });
+  }
+
+  if (simulation.userId !== req.user.id) {
+    return res.status(403).json({ message: "No autorizado" });
   }
 
   res.json(simulation);
@@ -44,6 +69,11 @@ export async function sendMessage(req, res) {
     where: { id: simulationId },
     include: {
       scenario: true,
+      user: {
+        include: {
+          company: true,
+        },
+      },
       messages: {
         orderBy: { id: "asc" },
       },
@@ -52,6 +82,10 @@ export async function sendMessage(req, res) {
 
   if (!simulation) {
     return res.status(404).json({ message: "Simulación no encontrada" });
+  }
+
+  if (simulation.userId !== req.user.id) {
+    return res.status(403).json({ message: "No autorizado" });
   }
 
   if (simulation.status !== "ACTIVE") {
@@ -73,6 +107,7 @@ export async function sendMessage(req, res) {
 
   const reply = await generateClientReply({
     scenario: simulation.scenario,
+    company: simulation.user.company,
     messages: updatedMessages,
   });
 
@@ -94,6 +129,11 @@ export async function endSimulation(req, res) {
     where: { id: simulationId },
     include: {
       scenario: true,
+      user: {
+        include: {
+          company: true,
+        },
+      },
       messages: {
         orderBy: { id: "asc" },
       },
@@ -104,12 +144,17 @@ export async function endSimulation(req, res) {
     return res.status(404).json({ message: "Simulación no encontrada" });
   }
 
+  if (simulation.userId !== req.user.id) {
+    return res.status(403).json({ message: "No autorizado" });
+  }
+
   const transcript = simulation.messages
     .map((m) => `${m.role === "USER" ? "COMERCIAL" : "CLIENTE"}: ${m.content}`)
     .join("\n");
 
   const feedback = await evaluateConversation({
     scenario: simulation.scenario,
+    company: simulation.user.company,
     transcript,
   });
 
@@ -145,6 +190,22 @@ export async function endSimulation(req, res) {
 export async function getFeedback(req, res) {
   const simulationId = Number(req.params.id);
 
+  const simulation = await prisma.simulation.findUnique({
+    where: { id: simulationId },
+    select: {
+      id: true,
+      userId: true,
+    },
+  });
+
+  if (!simulation) {
+    return res.status(404).json({ message: "Simulación no encontrada" });
+  }
+
+  if (simulation.userId !== req.user.id) {
+    return res.status(403).json({ message: "No autorizado" });
+  }
+
   const evaluation = await prisma.evaluation.findUnique({
     where: { simulationId },
   });
@@ -158,6 +219,10 @@ export async function getFeedback(req, res) {
 
 export async function getUserSimulations(req, res) {
   const userId = Number(req.params.userId);
+
+  if (userId !== req.user.id) {
+    return res.status(403).json({ message: "No autorizado" });
+  }
 
   const simulations = await prisma.simulation.findMany({
     where: { userId },
