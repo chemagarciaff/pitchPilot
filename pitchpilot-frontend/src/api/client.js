@@ -36,6 +36,8 @@ export const api = {
 
   getScenarios: () => request("/api/scenarios"),
 
+  getCompanyContext: () => request("/api/company"),
+
   createSimulation: (scenarioId) =>
     request("/api/simulations", {
       method: "POST",

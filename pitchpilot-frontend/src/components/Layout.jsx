@@ -32,6 +32,20 @@ export default function Layout({ title, children }) {
             >
               Historial
             </Link>
+
+            <Link
+              to="/scenarios/new"
+              className={location.pathname === "/scenarios/new" ? "nav-link active" : "nav-link"}
+            >
+              Añadir escenario
+            </Link>
+
+            <Link
+              to="/company"
+              className={location.pathname === "/company" ? "nav-link active" : "nav-link"}
+            >
+              Company
+            </Link>
           </nav>
         </div>
 

@@ -5,6 +5,7 @@ import DashboardPage from "./pages/DashboardPage";
 import SimulationPage from "./pages/SimulationPage";
 import FeedbackPage from "./pages/FeedbackPage";
 import HistoryPage from "./pages/HistoryPage";
+import CompanyPage from "./pages/CompanyPage";
 
 export default function App() {
   return (
@@ -34,6 +35,15 @@ export default function App() {
         element={
           <ProtectedRoute>
             <FeedbackPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/company"
+        element={
+          <ProtectedRoute>
+            <CompanyPage />
           </ProtectedRoute>
         }
       />
