@@ -1,0 +1,51 @@
+INSERT INTO `Company` (
+  `name`,
+  `businessDescription`,
+  `targetCustomer`,
+  `salesProcess`,
+  `valueProposition`,
+  `commonObjections`,
+  `competitors`,
+  `toneGuidelines`,
+  `goals`,
+  `createdAt`
+) VALUES (
+  'InmoNova',
+  'Agencia inmobiliaria especializada en vivienda residencial en zonas urbanas.',
+  'Compradores de primera vivienda, familias y propietarios que quieren vender con acompañamiento profesional.',
+  'Primero detectar motivación y situación real, después presentar valor del inmueble y finalmente cerrar visita o reunión.',
+  'Acompañamiento cercano, conocimiento del mercado local y filtrado de compradores cualificados.',
+  '["Es demasiado caro", "No quiero exclusiva", "Necesito pensarlo"]',
+  '["otras agencias locales", "portales inmobiliarios", "venta entre particulares"]',
+  'Profesional, cercano, consultivo y sin presión agresiva.',
+  '["cerrar visitas", "captar propietarios", "generar confianza"]',
+  NOW()
+);
+
+
+
+INSERT INTO `User` (`companyId`, `name`, `email`, `password`, `createdAt`)
+VALUES (1, 'Laura Martín', 'laura@pitchpilot.demo', '1234', NOW());
+
+
+INSERT INTO `Scenario` (
+  `companyId`,
+  `title`,
+  `description`,
+  `difficulty`,
+  `customerProfile`,
+  `propertyContext`,
+  `objections`,
+  `successCriteria`,
+  `createdAt`
+) VALUES (
+  1,
+  'Comprador interesado pero bloqueado por precio',
+  'Lead con interés real en una vivienda familiar, pero muy sensible al precio final.',
+  'MEDIUM',
+  'Hombre de 38 años, casado, con un hijo. Busca vivienda para vivir, compara mucho, es racional y desconfiado.',
+  'Piso de 3 habitaciones reformado, con garaje y buena ubicación.',
+  '["Es más caro que otros pisos que he visto", "Necesito consultarlo con mi pareja", "No sé si ahora es buen momento para comprar"]',
+  '["Descubrir la motivación real de compra", "Defender el valor del inmueble", "Cerrar una visita o siguiente paso"]',
+  NOW()
+);
