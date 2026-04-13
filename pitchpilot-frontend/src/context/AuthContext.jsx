@@ -8,7 +8,7 @@ export function AuthProvider({ children }) {
   const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
 
     if (!token) {
       setCheckingAuth(false);
@@ -18,7 +18,7 @@ export function AuthProvider({ children }) {
     api.me()
       .then((data) => setUser(data))
       .catch(() => {
-        localStorage.removeItem("token");
+        sessionStorage.removeItem("token");
         setUser(null);
       })
       .finally(() => setCheckingAuth(false));
@@ -26,13 +26,13 @@ export function AuthProvider({ children }) {
 
   async function login(email, password) {
     const data = await api.login(email, password);
-    localStorage.setItem("token", data.token);
+    sessionStorage.setItem("token", data.token);
     setUser(data.user);
     return data.user;
   }
 
   function logout() {
-    localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
     setUser(null);
   }
 

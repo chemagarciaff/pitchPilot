@@ -8,12 +8,14 @@ import { api } from "../api/client";
 export default function DashboardPage() {
   const navigate = useNavigate();
   const [scenarios, setScenarios] = useState([]);
+  const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(true);
   const [startingId, setStartingId] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
     loadScenarios();
+    loadCompany();
   }, []);
 
   async function loadScenarios() {
@@ -23,6 +25,18 @@ export default function DashboardPage() {
       setScenarios(data);
     } catch (err) {
       setError(err.message || "No se pudieron cargar los escenarios");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function loadCompany() {
+    try {
+      setLoading(true);
+      const data = await api.getCompanyContext();
+      setCompany(data);
+    } catch (err) {
+      setError(err.message || "No se pudo cargar el contexto de empresa");
     } finally {
       setLoading(false);
     }
@@ -41,7 +55,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <Layout title="Escenarios disponibles">
+    <Layout title="Escenarios disponibles" company={company}>
       {loading ? (
         <Loader text="Cargando escenarios..." />
       ) : (

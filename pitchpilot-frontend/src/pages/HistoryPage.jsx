@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
 
 export default function HistoryPage() {
   const { user } = useAuth();
+  const [company, setCompany] = useState(null);
   const [simulations, setSimulations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -14,6 +15,7 @@ export default function HistoryPage() {
   useEffect(() => {
     if (user?.id) {
       loadHistory();
+      loadCompany();
     }
   }, [user]);
 
@@ -29,8 +31,20 @@ export default function HistoryPage() {
     }
   }
 
+  async function loadCompany() {
+    try {
+      setLoading(true);
+      const data = await api.getCompanyContext();
+      setCompany(data);
+    } catch (err) {
+      setError(err.message || "No se pudo cargar el contexto de empresa");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
-    <Layout title="Historial de simulaciones">
+    <Layout title="Historial de simulaciones" company={company}>
       {loading ? (
         <Loader text="Cargando historial..." />
       ) : (

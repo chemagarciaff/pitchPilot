@@ -1,7 +1,7 @@
 const API_URL = "http://localhost:4000";
 
 function getToken() {
-  return localStorage.getItem("token");
+  return sessionStorage.getItem("token");
 }
 
 async function request(path, options = {}) {
@@ -36,7 +36,7 @@ export const api = {
 
   getScenarios: () => request("/api/scenarios"),
 
-  getCompanyContext: () => request("/api/company"),
+  getCompanyContext: () => request("/api/companies"),
 
   createSimulation: (scenarioId) =>
     request("/api/simulations", {

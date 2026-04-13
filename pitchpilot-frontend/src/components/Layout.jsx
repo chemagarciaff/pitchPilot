@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-export default function Layout({ title, children }) {
+export default function Layout({ title, company = null, children }) {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -16,7 +16,7 @@ export default function Layout({ title, children }) {
       <aside className="sidebar">
         <div>
           <div className="brand">PitchPilot</div>
-          <p className="brand-subtitle">Demo inmobiliaria</p>
+          <p className="brand-subtitle">Entrenador de ventas</p>
 
           <nav className="nav">
             <Link
@@ -62,6 +62,8 @@ export default function Layout({ title, children }) {
 
       <main className="main-content">
         <div className="page-header">
+          {company && <h3 className="company-kicker">Empresa {company.name}</h3>}
+
           <h1>{title}</h1>
         </div>
         {children}
